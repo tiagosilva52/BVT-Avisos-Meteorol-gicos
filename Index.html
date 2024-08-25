@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboards Meteorológicos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Alinha o contêiner ao topo */
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .dashboard-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1200px; /* Largura maior */
+            margin-top: 20px; /* Margem superior para afastar do topo */
+        }
+        h1 {
+            color: #333;
+            background-color: #f0f0f0;
+            padding: 20px;
+            text-align: center;
+            border-radius: 12px;
+            margin: 0 0 20px 0; /* Remove margem superior e adiciona margem inferior */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 16px;
+            text-align: center;
+            border-bottom: 1px solid #ccc;
+        }
+        th {
+            background-color: #00796b;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+            cursor: pointer;
+        }
+        .green { background-color: #98FB98; }
+        .yellow { background-color: #FFE066; }
+        .orange { background-color: #FFB347; }
+        .red { background-color: #FF6F61; }
+        .icon {
+            margin-right: 8px;
+            opacity: 0.8;
+        }
+        /* Loader */
+        #loader {
+            border: 8px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 8px solid #00796b;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 15px;
+            }
+            table {
+                font-size: 14px;
+            }
+            th, td {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <h1>Avisos Meteorológicos</h1>
+    <div id="loader"></div>
+    <table style="display:none;" id="avisos-table">
+        <thead>
+            <tr>
+                <th>Distrito</th>
+                <th>Início</th>
+                <th>Fim</th>
+                <th>Tipo de Aviso</th>
+                <th>Estado do Aviso</th>
+            </tr>
+        </thead>
+        <tbody id="avisos-container"></tbody>
+    </table>
+</div>
+
+<script>
+    const apiUrl = "https://api.ipma.pt/open-data/forecast/warnings/warnings_www.json";
+    const distritosInteresse = { "BRG": "Braga" };
+    const tiposAvisoInteresse = ["Trovoada", "Precipitação", "Vento", "Neve", "Tempo Frio", "Tempo Quente", "Nevoeiro"];
+    const niveisAvisoInteresse = ["green", "yellow", "orange", "red"];
+    const traducaoAvisos = { "green": "Verde", "yellow": "Amarelo", "orange": "Laranja", "red": "Vermelho" };
+    const iconesAviso = {
+        "Trovoada": "fas fa-bolt",
+        "Precipitação": "fas fa-cloud-showers-heavy",
+        "Vento": "fas fa-wind",
+        "Neve": "fas fa-snowflake",
+        "Tempo Frio": "fas fa-temperature-low",
+        "Tempo Quente": "fas fa-temperature-high",
+        "Nevoeiro": "fas fa-smog"
+    };
+
+    function formatarDataHora(dataHora) {
+        const data = new Date(dataHora);
+        return data.toLocaleString('pt-PT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    async function obterAvisos() {
+        const loader = document.getElementById('loader');
+        const table = document.getElementById('avisos-table');
+        loader.style.display = 'block';  // Exibe o loader enquanto carrega os dados
+        try {
+            const response = await fetch(apiUrl);
+            const dados = await response.json();
+            const avisosFiltrados = dados.filter(aviso => 
+                distritosInteresse.hasOwnProperty(aviso.idAreaAviso) && 
+                tiposAvisoInteresse.includes(aviso.awarenessTypeName) &&
+                niveisAvisoInteresse.includes(aviso.awarenessLevelID)
+            ).sort((a, b) => {
+                if (a.idAreaAviso === "BRG") return -1;
+                if (b.idAreaAviso === "BRG") return 1;
+                return 0;
+            });
+
+            const container = document.getElementById('avisos-container');
+            if (avisosFiltrados.length > 0) {
+                avisosFiltrados.forEach(aviso => {
+                    const avisoRow = document.createElement('tr');
+                    avisoRow.className = aviso.awarenessLevelID;
+
+                    avisoRow.innerHTML = `
+                        <td>${distritosInteresse[aviso.idAreaAviso]}</td>
+                        <td>${formatarDataHora(aviso.startTime)}</td>
+                        <td>${formatarDataHora(aviso.endTime)}</td>
+                        <td><i class="${iconesAviso[aviso.awarenessTypeName]} icon" title="${aviso.awarenessTypeName}"></i>${aviso.awarenessTypeName}</td>
+                        <td>${traducaoAvisos[aviso.awarenessLevelID]}</td>
+                    `;
+                    container.appendChild(avisoRow);
+                });
+            } else {
+                container.innerHTML = "<tr><td colspan='5'>Não há avisos para os distritos especificados.</td></tr>";
+            }
+        } catch (error) {
+            console.error('Erro ao obter os avisos:', error);
+        } finally {
+            loader.style.display = 'none';  // Esconde o loader após o carregamento
+            table.style.display = 'table';  // Exibe a tabela
+        }
+    }
+
+    window.onload = obterAvisos;
+</script>
+
+</body>
+</html>
