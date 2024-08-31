@@ -3,117 +3,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboards Meteorológicos</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Relógio e Avisos Meteorológicos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Adiciona o Font Awesome -->
     <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start; /* Alinha o contêiner ao topo */
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-        .dashboard-container {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 1200px; /* Largura maior */
-            margin-top: 20px; /* Margem superior para afastar do topo */
-        }
-        h1 {
-            color: #333;
-            background-color: #f0f0f0;
-            padding: 20px;
-            text-align: center;
-            border-radius: 12px;
-            margin: 0 0 20px 0; /* Remove margem superior e adiciona margem inferior */
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            padding: 16px;
-            text-align: center;
-            border-bottom: 1px solid #ccc;
-        }
-        th {
-            background-color: #00796b;
-            color: white;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-            cursor: pointer;
-        }
-        .green { background-color: #98FB98; }
-        .yellow { background-color: #FFE066; }
-        .orange { background-color: #FFB347; }
-        .red { background-color: #FF6F61; }
-        .icon {
-            margin-right: 8px;
-            opacity: 0.8;
-        }
-        /* Loader */
-        #loader {
-            border: 8px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 8px solid #00796b;
-            width: 50px;
-            height: 50px;
-            animation: spin 2s linear infinite;
-            margin: 0 auto;
-            display: none;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        /* Responsividade */
-        @media (max-width: 768px) {
-            .dashboard-container {
-                padding: 15px;
-            }
-            table {
-                font-size: 14px;
-            }
-            th, td {
-                padding: 12px;
-            }
-        }
+      /* Estilo Global */
+body {
+    margin: 0;
+    background: linear-gradient(to right, #000000, #434343); /* Gradiente escuro para um efeito moderno */
+    color: #ffffff;
+    font-family: 'Arial', sans-serif; /* Fonte padrão mais moderna */
+}
+
+/* Reset de Estilo */
+* {
+    box-sizing: border-box;
+}
+
+/* Contêiner do Relógio */
+.clock-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+/* Estilo do Relógio */
+.clock {
+    width: 60%; /* Largura ajustada para se adaptar a diferentes tamanhos de tela */
+    border: 2px solid #ffffff; /* Borda para destacar os relógios */
+    border-radius: 10px; /* Bordas arredondadas */
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Sombra para profundidade */
+    text-align: center;
+    font-size: 60px; /* Ajustado para melhor legibilidade */
+    font-weight: bold;
+    margin: 10px; /* Espaçamento entre os relógios */
+    background-color: rgba(0, 0, 0, 0.7); /* Fundo ligeiramente transparente para melhor contraste */
+}
+
+/* Estilo da Tabela */
+table {
+    width: 60%; /* Largura ajustada para se adaptar a diferentes tamanhos de tela */
+    border-collapse: collapse;
+    margin: 20px auto; /* Centraliza a tabela e ajusta a margem */
+    font-size: 20px; /* Ajustado para melhor legibilidade */
+    border-radius: 10px; /* Bordas arredondadas na tabela */
+    overflow: hidden; /* Evita que a tabela saia do contêiner */
+    background-color: #222222; /* Fundo da tabela para melhor contraste */
+}
+
+/* Estilo das Células da Tabela */
+th, td {
+    padding: 12px; /* Ajuste no padding para melhor visualização */
+    border: 1px solid #ffffff;
+    text-align: center;
+    color: #ffffff;
+}
+
+/* Estilo dos Cabeçalhos da Tabela */
+th {
+    background-color: #444444; /* Cor de fundo mais suave para o cabeçalho */
+    font-weight: bold;
+}
+
+/* Larguras Específicas das Colunas */
+th:nth-child(1), td:nth-child(1) {
+    width: 25%; /* Largura ajustada para a coluna de Data e Hora de Início */
+}
+
+th:nth-child(2), td:nth-child(2) {
+    width: 25%; /* Largura ajustada para a coluna de Data e Hora de Fim */
+}
+
+th:nth-child(3), td:nth-child(3) {
+    width: 30%; /* Largura ajustada para a coluna de Tipo de Aviso */
+}
+
+th:nth-child(4), td:nth-child(4) {
+    width: 20%; /* Largura ajustada para a coluna de Estado do Aviso */
+}
+
+/* Estilo das Linhas de Aviso */
+tr.green {
+    background-color: #004d00; /* Verde escuro para melhor legibilidade */
+    color: #ffffff;
+}
+
+tr.yellow {
+    background-color: #cccc00; /* Amarelo escuro */
+    color: #000000;
+}
+
+tr.orange {
+    background-color: #cc6600; /* Laranja escuro */
+    color: #ffffff;
+}
+
+tr.red {
+    background-color: #990000; /* Vermelho escuro */
+    color: #ffffff;
+}
+
+/* Estilo do Título */
+h1 {
+    text-align: center;
+    font-size: 28px; /* Ajustado para um tamanho de fonte mais adequado */
+    margin: 20px 0; /* Margens ajustadas para separar os títulos das tabelas */
+}
+
+/* Estilo do Loader */
+.loader {
+    display: flex;
+    justify-content: center; /* Centraliza o loader */
+    align-items: center;
+    height: 100px;
+}
+
+.loader::after {
+    content: '';
+    border: 8px solid #f3f3f3; /* Cor da borda do loader */
+    border-radius: 50%;
+    border-top: 8px solid #3498db; /* Cor da parte giratória */
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite; /* Animação de rotação */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Estilo dos Avisos */
+.warning {
+    font-size: 18px; /* Tamanho reduzido para melhor visualização */
+    color: #ffcc00;
+    text-align: center;
+    font-weight: bold;
+    margin: 20px 0; /* Margem para separar os avisos das tabelas */
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .clock {
+        font-size: 40px; /* Ajusta o tamanho da fonte dos relógios em dispositivos menores */
+    }
+    
+    table {
+        width: 100%; /* Ajusta a largura da tabela para caber em dispositivos menores */
+    }
+    
+    th, td {
+        font-size: 16px; /* Ajusta o tamanho da fonte das células para melhor legibilidade */
+        padding: 8px; /* Reduz o padding para economizar espaço */
+    }
+    
+    .loader::after {
+        width: 30px; /* Ajusta o tamanho do loader em dispositivos menores */
+        height: 30px;
+    }
+    
+    h1 {
+        font-size: 24px; /* Ajusta o tamanho do título em dispositivos menores */
+    }
+}
+
     </style>
 </head>
 <body>
+    <div class="clock-container">
+        <div class="clock" id="txt">Loading time...</div>
+        <div class="clock" id="txt2">Loading time...</div>
+        <div class="clock" id="txt3">Loading time...</div>
+        <div class="clock" id="txt4">Loading time...</div>
+    </div>
 
-<div class="dashboard-container">
-    <h1>Avisos Meteorológicos</h1>
-    <div id="loader"></div>
-    <table style="display:none;" id="avisos-table">
-        <thead>
-            <tr>
-                <th>Distrito</th>
-                <th>Início</th>
-                <th>Fim</th>
-                <th>Tipo de Aviso</th>
-                <th>Estado do Aviso</th>
-            </tr>
-        </thead>
-        <tbody id="avisos-container"></tbody>
-    </table>
-</div>
+    <div class="dashboard-container">
+        <h1>Avisos Meteorológicos para Braga</h1>
+        <div id="loader-braga" class="loader">Loading...</div>
+        <table class="warning-table" id="avisos-table-braga" style="display:none;">
+            <thead>
+                <tr>
+                    <th>Data e Hora de Início</th>
+                    <th>Data e Hora de Fim</th>
+                    <th>Tipo de Aviso</th>
+                    <th>Estado do Aviso</th>
+                </tr>
+            </thead>
+            <tbody id="avisos-container-braga"></tbody>
+        </table>
 
-<script>
+        <h1>Avisos Meteorológicos para Vila Real</h1>
+        <div id="loader-vila-real" class="loader">Loading...</div>
+        <table class="warning-table" id="avisos-table-vila-real" style="display:none;">
+            <thead>
+                <tr>
+                    <th>Data e Hora de Início</th>
+                    <th>Data e Hora de Fim</th>
+                    <th>Tipo de Aviso</th>
+                    <th>Estado do Aviso</th>
+                </tr>
+            </thead>
+            <tbody id="avisos-container-vila-real"></tbody>
+        </table>
+    </div>
+
+    <script>
+        function startTime() {
+            var lsb = new Date().toLocaleTimeString("pt-PT", { timeZone: "Europe/Lisbon" });
+            var utc = new Date().toLocaleTimeString("pt-PT", { timeZone: "UTC" });
+            var az = new Date().toLocaleTimeString("pt-PT", { timeZone: "Atlantic/Azores" });
+            var cet = new Date().toLocaleTimeString("pt-PT", { timeZone: "Europe/Brussels" });
+
+            document.getElementById('txt').innerHTML = "LSB: " + lsb;
+            document.getElementById('txt2').innerHTML = "AZO: " + az;
+            document.getElementById('txt3').innerHTML = "UTC: " + utc;
+            document.getElementById('txt4').innerHTML = "CET: " + cet;
+
+            setTimeout(startTime, 1000);
+        }
+
+        async function obterAvisos(idArea, tableId, containerId, loaderId) {
     const apiUrl = "https://api.ipma.pt/open-data/forecast/warnings/warnings_www.json";
-    const distritosInteresse = { "BRG": "Braga" };
     const tiposAvisoInteresse = ["Trovoada", "Precipitação", "Vento", "Neve", "Tempo Frio", "Tempo Quente", "Nevoeiro"];
-    const niveisAvisoInteresse = ["green", "yellow", "orange", "red"];
-    const traducaoAvisos = { "green": "Verde", "yellow": "Amarelo", "orange": "Laranja", "red": "Vermelho" };
+    const niveisAvisoInteresse = ["yellow", "orange", "red"]; // Apenas amarelo, laranja e vermelho
+    const traducaoAvisos = { "yellow": "Amarelo", "orange": "Laranja", "red": "Vermelho" };
     const iconesAviso = {
         "Trovoada": "fas fa-bolt",
         "Precipitação": "fas fa-cloud-showers-heavy",
@@ -129,51 +243,55 @@
         return data.toLocaleString('pt-PT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     }
 
-    async function obterAvisos() {
-        const loader = document.getElementById('loader');
-        const table = document.getElementById('avisos-table');
-        loader.style.display = 'block';  // Exibe o loader enquanto carrega os dados
-        try {
-            const response = await fetch(apiUrl);
-            const dados = await response.json();
-            const avisosFiltrados = dados.filter(aviso => 
-                distritosInteresse.hasOwnProperty(aviso.idAreaAviso) && 
-                tiposAvisoInteresse.includes(aviso.awarenessTypeName) &&
-                niveisAvisoInteresse.includes(aviso.awarenessLevelID)
-            ).sort((a, b) => {
-                if (a.idAreaAviso === "BRG") return -1;
-                if (b.idAreaAviso === "BRG") return 1;
-                return 0;
+    const loader = document.getElementById(loaderId);
+    const table = document.getElementById(tableId);
+    const container = document.getElementById(containerId);
+
+    loader.style.display = 'block';
+    container.innerHTML = ''; // Limpa os avisos anteriores
+
+    try {
+        const response = await fetch(apiUrl);
+        const dados = await response.json();
+        const avisosFiltrados = dados.filter(aviso => 
+            aviso.idAreaAviso === idArea && 
+            tiposAvisoInteresse.includes(aviso.awarenessTypeName) &&
+            niveisAvisoInteresse.includes(aviso.awarenessLevelID)
+        );
+
+        if (avisosFiltrados.length > 0) {
+            avisosFiltrados.forEach(aviso => {
+                const avisoRow = document.createElement('tr');
+                avisoRow.className = aviso.awarenessLevelID; // Aplica a classe correspondente ao nível de aviso
+
+                avisoRow.innerHTML = `
+                    <td>${formatarDataHora(aviso.startTime)}</td>
+                    <td>${formatarDataHora(aviso.endTime)}</td>
+                    <td><i class="${iconesAviso[aviso.awarenessTypeName]} icon"></i>${aviso.awarenessTypeName}</td>
+                    <td>${traducaoAvisos[aviso.awarenessLevelID]}</td>
+                `;
+                container.appendChild(avisoRow);
             });
-
-            const container = document.getElementById('avisos-container');
-            if (avisosFiltrados.length > 0) {
-                avisosFiltrados.forEach(aviso => {
-                    const avisoRow = document.createElement('tr');
-                    avisoRow.className = aviso.awarenessLevelID;
-
-                    avisoRow.innerHTML = `
-                        <td>${distritosInteresse[aviso.idAreaAviso]}</td>
-                        <td>${formatarDataHora(aviso.startTime)}</td>
-                        <td>${formatarDataHora(aviso.endTime)}</td>
-                        <td><i class="${iconesAviso[aviso.awarenessTypeName]} icon" title="${aviso.awarenessTypeName}"></i>${aviso.awarenessTypeName}</td>
-                        <td>${traducaoAvisos[aviso.awarenessLevelID]}</td>
-                    `;
-                    container.appendChild(avisoRow);
-                });
-            } else {
-                container.innerHTML = "<tr><td colspan='5'>Não há avisos para os distritos especificados.</td></tr>";
-            }
-        } catch (error) {
-            console.error('Erro ao obter os avisos:', error);
-        } finally {
-            loader.style.display = 'none';  // Esconde o loader após o carregamento
-            table.style.display = 'table';  // Exibe a tabela
+        } else {
+            container.innerHTML = "<tr><td colspan='4'>Não há avisos para este distrito.</td></tr>";
         }
+    } catch (error) {
+        console.error('Erro ao obter os avisos:', error);
+        container.innerHTML = "<tr><td colspan='4'>Erro ao obter os avisos.</td></tr>";
+    } finally {
+        loader.style.display = 'none';
+        table.style.display = 'table';
     }
-
-    window.onload = obterAvisos;
-</script>
-
+}
+        window.onload = function() {
+            startTime();
+            obterAvisos("BRG", "avisos-table-braga", "avisos-container-braga", "loader-braga");
+            obterAvisos("VRL", "avisos-table-vila-real", "avisos-container-vila-real", "loader-vila-real");
+            setInterval(() => {
+                obterAvisos("BRG", "avisos-table-braga", "avisos-container-braga", "loader-braga");
+                obterAvisos("VRL", "avisos-table-vila-real", "avisos-container-vila-real", "loader-vila-real");
+            }, 3600000); // Atualiza os avisos a cada hora
+        };
+    </script>
 </body>
 </html>
